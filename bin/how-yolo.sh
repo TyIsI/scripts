@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ "$*" = "" ] ; then
 	echo NO YOLO WITHOUT SAUCE BITS!

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # From: https://techoverflow.net/2025/09/02/how-to-extract-the-entrypoint-and-command-of-a-docker-container-image/
 # Original Author: @ulikoehler https://github.com/ulikoehler
