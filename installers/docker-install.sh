@@ -3,7 +3,7 @@
 set -e
 
 echo "Cleaning up potential old packages..." &&
-    sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1) &&
+    sudo apt remove -y $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1) &&
     echo "Running initial update..." &&
     sudo apt update &&
     echo "Running system upgrades..." &&
@@ -28,6 +28,6 @@ EOF
     echo "Updating..." &&
     sudo apt update &&
     echo "Installing Docker..." &&
-    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
+    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
     echo "Verifying install" &&
-    sudo docker run hello-world
+    sudo docker run --rm hello-world
