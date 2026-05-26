@@ -8,5 +8,9 @@
 !bin/
 !bin/*
 
+!docker-compose/
+!docker-compose/**/
+!docker-compose/**/*
+
 !installers/
 !installers/*

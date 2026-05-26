@@ -1,0 +1,66 @@
+services:
+    docker-proxy:
+        environment:
+            - CONTAINERS=1
+        image: tecnativa/docker-socket-proxy
+        networks:
+            - docker-proxy
+        restart: always
+        volumes:
+            - docker-proxy-state:/var/lib/haproxy
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    traefik:
+        image: traefik:v3
+        container_name: traefik
+        restart: always
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 1
+        command:
+            - --providers.file.directory=/conf
+            - --providers.file.watch=true
+            - --providers.docker.exposedbydefault=false
+            - --providers.docker.network=proxy
+            - --providers.docker.endpoint=tcp://docker-proxy:2375
+            - --api.insecure=true
+            - --api.dashboard=true
+            - --entrypoints.web.address=:80
+            - --entrypoints.web.http.redirections.entryPoint.to=websecure
+            - --entrypoints.web.http.redirections.entryPoint.scheme=https
+            - --entrypoints.websecure.address=:443
+            - --entrypoints.websecure.forwardedHeaders.insecure=true
+            - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+            - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+            - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+            - --log=true
+            - --log.level=ERROR
+            - --accesslog=true
+        depends_on:
+            - docker-proxy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        environment:
+          - DOCKER_HOST=tcp://docker-proxy:2375
+        networks:
+            - docker-proxy
+            - proxy
+            - public
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./confs/enabled:/conf:ro
+            - ./letsencrypt:/letsencrypt:rw
+
+networks:
+    docker-proxy:
+    proxy:
+        external: true
+    public:
+        external: true
+
+volumes:
+    docker-proxy-state:
